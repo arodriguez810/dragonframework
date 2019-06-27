@@ -1,0 +1,361 @@
+<%
+if (DATA.name !== undefined) {
+    var name, model, opts;
+    name = DATA.name;
+    model = DATA.model;
+    opts = DATA.opts;
+}
+var name = name || "";
+var options = {
+    label: params.capitalize(name),
+    default: 'Select ' + params.capitalize(name),
+    icon: {
+        class: "none",
+        position: "left",
+        color: COLOR.secundary + "-800"
+    },
+    self: true,
+    allownull: true,
+    allownew: true,
+    allowedit: true,
+    allowview: true,
+    allowlist: true,
+    refresh: true,
+    condition: "true",
+    multiple: false,
+    disabled: false,
+    helptext: '',
+    value: "id",
+    text: "item.name",
+    //table: "",
+    get: {
+        table: '',
+        field: ''
+    },
+    parent: false,
+    childs: false,
+    query: {
+        limit: 0,
+        page: 1,
+        where: [],
+        orderby: "id",
+        order: "asc",
+        distinct: false
+        // join: [
+        //     {
+        //         table: "ms_category",
+        //         base: "category",
+        //         field: "id",
+        //         columns: ["id", "name"]
+        //     },
+        //     {
+        //         table: "otratable",
+        //         base: "ms_category_id",
+        //         field: "id",
+        //         columns: ["id", "name"]
+        //     }
+        // ]
+    },
+    groupby: "",
+    data: [],
+    posttype: "select"
+};
+options = OBJECT.merge(options, opts);
+var nameclean = name.replace(/\./g, '_');
+options.model = options.model ? options.model : false;
+options.controller = options.controller || options.table;
+options.permission = options.permission || "CRUD_" + options.controller;
+var toclient = JSON.stringify(options);
+%>
+<script>
+    <%= model %>.selectMessage = MESSAGE.ic('mono.youselect');
+    <%= model %>.triggers.table.before.control("<%= nameclean %>");
+    if (DSON.oseaX(<%= model + "." + name %>))
+            <%= model + "." + nameclean %> = "[NULL]";
+
+    <% if(options.multiple){ %>
+    <%= model %>.<%= nameclean %> = [];
+    <%= model %>.form.schemas.insert["<%= name %>"] = FORM.schemasType.selectMultiple;
+    <%= model %>.form.schemas.select["<%= name %>"] = `{
+                    toTable: "<%= options.table %>",
+                    text: MESSAGE.i('actions.Loading'),
+                    fields: {
+                        <%= options.get.fieldTo %>: "$id",
+                    },
+                }`;
+    <% } %>
+
+    <%= model %>.form.registerField("<%= name %>", "<%= toclient %>", "'[NULL]'");
+    <%= model %>.form.options.<%= name %>.default = `${MESSAGE.ic('mono.youselect')}`;
+    if (MESSAGE.exist('columns.<%= nameclean %>')) {
+        <%= model %>.
+        form.options.<%= name %>.label = MESSAGE.ic('columns.<%= nameclean %>');
+        <%= model %>.
+        form.options.<%= name %>.default = `${MESSAGE.ic('mono.youselect')}`;
+    }
+
+
+    var isReadProgram = <%= model %>.form.isReadOnly('<%= name %>');
+    if (isReadProgram !== false) {
+        <%= model %>.
+        form.options.<%= name %>.disabled = true;
+        if (isReadProgram !== undefined) {
+            <%= model %>.<%= name %> = isReadProgram;
+        }
+    }
+    <%= model %>.form.loadDropDown("<%= name %>");
+
+    var permissions = eval('<%= options.permission %>');
+    if (!permissions.table.allow.edit)
+            <%= model %>.
+    form.options.<%= name %>.allowedit = false;
+    if (!permissions.table.allow.view)
+            <%= model %>.
+    form.options.<%= name %>.allowview = false;
+    if (!permissions.table.allow.add)
+            <%= model %>.
+    form.options.<%= name %>.allownew = false;
+</script>
+<% if (model !== options.controller){ %>
+<div id="<%= options.controller %>" ng-controller="<%= options.controller %> as <%= options.controller %>">
+    <% } %>
+    <div class="form-group-material form-group has-feedback has-{{<%= model %>.validate['<%= name %>'].type || 'success' }}  has-feedback-<%= options.icon.position %>"
+         id="input<%= model %>_<%= nameclean %>">
+        <label class="control-label is-visible animate" style="color:#000000 !important;">
+            {{<%= model %>.form.options.<%= name %>.label}}
+            <% if(options.popover){ %>
+                <i
+                        id="popover<%= model %>_<%= nameclean %>" class="icon-help">
+                </i>
+            <% } %>
+        </label>
+
+        <% if(options.allownew || options.allowedit || options.allowview || options.allowlist || options.refresh){ %>
+            <li class="dropdown" style="float: right;list-style: none">
+
+                <a href="#" class="dropdown-toggle legitRipple " data-toggle="dropdown"
+                   aria-expanded="false">
+                    <i dragonlanguage="" title="MESSAGE.i('mono.options')"
+                       class="text-<%= COLOR.secundary %> icon-list-unordered"></i>
+                    <span class="caret"></span>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-right">
+
+                    <% if(options.refresh){ %>
+                        <li>
+                            <a dragonlanguage="" title="MESSAGE.i('mono.RefreshList')"
+                               id="reload<%= model %>_<%= nameclean %>"
+                            >
+                                <i class="icon-reload-alt"></i>
+                                <language>MESSAGE.ic('mono.RefreshList')</language>
+                            </a>
+                        </li>
+                    <% } %>
+                    <% if(options.allowlist){ %>
+                        <li>
+                            <a dragonlanguage="" title="MESSAGE.ic('mono.list')" id="list<%= model %>_<%= nameclean %>">
+                                <i class="icon-list"></i>
+                                <language>MESSAGE.ic('mono.list')</language>
+                            </a>
+                        </li>
+                    <% } %>
+                    <% if(!options.multiple){ %>
+                        <li ng-show="<%= model + "." + name %>!='[NULL]' && <%= model %>.form.options.<%= name %>.allowview">
+                            <a dragonlanguage="" title="MESSAGE.i('mono.Viewitem')"
+
+                               id="view<%= model %>_<%= nameclean %>">
+                                <i class="icon-eye"></i>
+                                <language>MESSAGE.ic('mono.Viewitem')</language>
+                            </a>
+                        </li>
+                    <% } %>
+                    <li ng-show="<%= model %>.form.options.<%= name %>.allownew">
+                        <a dragonlanguage="" title="MESSAGE.i('mono.Additem')" id="new<%= model %>_<%= nameclean %>"
+                        >
+                            <i class="icon-plus-circle2"></i>
+                            <language>MESSAGE.ic('mono.Additem')</language>
+                        </a>
+                    </li>
+                    <li ng-show="<%= model + "." + name %>!='[NULL]' &&  <%= model %>.form.options.<%= name %>.allowedit">
+                        <a dragonlanguage="" title="MESSAGE.i('mono.Edititem')"
+                           id="edit<%= model %>_<%= nameclean %>">
+                            <i class="icon-pencil"></i>
+                            <language>MESSAGE.ic('mono.Edititem')</language>
+                        </a>
+                    </li>
+
+                </ul>
+            </li>
+        <% } %>
+        <select
+                <%= options.multiple ? "multiple='multiple'" : "" %>
+                style="display: inline;"
+                ng-model="<%= model + "." + name %>"
+                name="<%= model %>_<%= nameclean %>"
+                ng-disabled="<%= model %>.form.options.<%= name %>.disabled"
+                class="form-control bootstrap-select js-example-basic-single">
+            <% if(!options.allownull){ %>
+                <option></option>
+            <% }else{ %>
+                <% if(!options.multiple){ %>
+                    <option value="[NULL]">{{<%= model %>.selectMessage}}</option>
+                <% } %>
+            <% } %>
+
+            <% if(options.groupby){ %>
+                <optgroup ng-repeat="(key,categories) in <%= model %>.form.options.<%= name %>.groupbydata track by key"
+                          label="{{key}}">
+                    <option
+
+                            ng-if="<%= options.condition %>"
+                            data-object="{{item}}" ng-repeat="(sub,item) in categories track by sub"
+                            value="{{item.<%= options.value %>}}">
+                        {{<%= options.text %>}}
+                    </option>
+                </optgroup>
+            <% } else{ %>
+                <option data-object="{{item}}"
+                        ng-if="<%= options.condition %>"
+                        ng-repeat="(key,item) in <%= model %>.form.options.<%= name %>.data track by key"
+                        value="{{item.<%= options.value %>}}">
+                    {{<%= options.text %>}}
+                </option>
+            <% } %>
+        </select>
+
+
+        <div class="form-control-feedback">
+            <i id="icon<%= name %>" class="icon-<%= options.icon.class %> text-secundary"></i>
+        </div>
+        <span ng-if="<%= model %>.form.options.<%= name %>.helptext!=''"
+              class="help-block text-muted">
+            {{<%= model %>.form.options.<%= name %>.helptext}}
+        </span>
+        <span ng-show="<%= model %>.validate['<%= name %>'].messages.length>0" class="help-block">
+            <p class="text-{{validation.type}}" ng-show="validation.visible!==false || <%= model %>.form.intent===true"
+               ng-repeat="(key,validation) in <%= model %>.validate['<%= name %>'].messages track by key">
+                   <i class="{{validation.icon}}"></i> {{validation.message}}
+            </p>
+        </span>
+    </div>
+    <% if (model !== options.controller){ %>
+</div>
+<% } %>
+<script>
+    function reloadMe<%= model %>_<%= nameclean %>() {
+        if (PRUDENTS["<%= options.controller %>"] !== undefined) {
+            <% if(options.multiple){ %>
+            if (<%= model %>.<%= nameclean %>===
+            "[NULL]"
+        )
+            <%= model %>.<%= nameclean %> = [];
+            <%= model %>.<%= nameclean %>.
+            push(PRUDENTS["<%= options.controller %>"].toString());
+            delete PRUDENTS["<%= options.controller %>"];
+            <% }else { %>
+            <%= model %>.<%= nameclean %> = PRUDENTS["<%= options.controller %>"].toString();
+            delete PRUDENTS["<%= options.controller %>"];
+            <% } %>
+        }
+        <%= model %>.
+        form.loadDropDown("<%= name %>");
+    }
+
+    $(document).ready(function () {
+        <% if(options.popover){ %>
+        $('#popover<%= model %>_<%= nameclean %>').popover({
+            container: 'body',
+            title: eval("`" +<%= model %>.form.options.<%= name %>.popover.title + "`"),
+            content
+    :
+        eval("`" +<%= model %>.form.options.<%= name %>.popover.content + "`"
+    ),
+        trigger: 'click'
+    })
+        ;
+        <% } %>
+        <%= model %>.
+        form.beginFunctions.push(`reloadMe<%= model %>_<%= nameclean %>();`);
+
+
+        <%= model %>.
+        <%= name %>_object = {};
+        $('[name="<%= model %>_<%= nameclean %>"]').change(function () {
+            var selectedss = $(this).children("option:selected").data('object');
+
+            <%= model %>.
+            <%= nameclean %>_object = selectedss;
+
+            STEP.register({
+                scope: "<%= model %>",
+                action: "Change DropDown",
+                field: "<%= name %>",
+                value: <%= model %>.<%= name %>
+        })
+            ;
+
+
+        });
+
+        $('#reload<%= model %>_<%= nameclean %>').click(function () {
+            <%= model %>.
+            form.loadDropDown("<%= name %>");
+            return false;
+        });
+        $('#new<%= model %>_<%= nameclean %>').click(function () {
+            CURRENTPRUDENTS = "<%= options.controller %>";
+            <%= options.controller %>.
+            formulary(null, 'new');
+            return false;
+        });
+        $('#list<%= model %>_<%= nameclean %>').click(function () {
+            baseController.viewData = {};
+            var modal = {
+                    header: {
+                        title: MESSAGE.i('mono.Listof') + <%= options.controller %>.plural,
+                    icon: "list"
+                },
+                footer: {
+                    cancelButton: true
+                },
+                content: {
+                    loadingContentText: MESSAGE.i('actions.Loading'),
+                }
+        }
+            <%= options.controller %>.
+            modal.modalView(String.format("{0}", "<%= options.controller %>"), modal);
+            return false;
+        });
+
+        $('#edit<%= model %>_<%= nameclean %>').click(function () {
+            <%= options.controller %>.
+            formulary({
+                where: [{
+                    field: <%= 'CRUD_' + options.controller %>.table.key,
+                    value
+        : <%= model %>.<%= name %>}]
+        },
+            FORM.modes.edit, {}
+        )
+            ;
+            return false;
+        });
+        $('#view<%= model %>_<%= nameclean %>').click(function () {
+            <%= model %>.
+
+            cell.openLink({
+                table: "<%= options.controller %>",
+                column: "<%= options.column %>",
+                value: <%= model %>.<%= name %>, field
+        :
+            "<%= name %>"
+        })
+            ;
+
+
+            return false;
+        });
+    });
+    MESSAGE.run();
+</script>

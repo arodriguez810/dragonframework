@@ -1,0 +1,116 @@
+<%
+if (DATA.name !== undefined) {
+    var name, model, opts;
+    name = DATA.name;
+    model = DATA.model;
+    opts = DATA.opts;
+}
+var name = name || "";
+var options = {
+    text: params.capitalize(name),
+    icon: {
+        class: "upload",
+        position: "left",
+        color: COLOR.primary
+    },
+    type: "normal",
+    tempId: Date().getTime(),
+    width: "modal-full",
+    posttype: "relations",
+    title: "Add Multiple",
+    master: null,
+    originalField: "id",
+    modal: false
+    //table:""
+};
+
+options = OBJECT.merge(options, opts); var nameclean = name.replace(/\./g, '_');
+options.color = options.type === "form" ? "{{" + model + ".validation.stateDefault()}}" : COLOR.primary;
+var toclient = JSON.stringify(options);
+
+options.originalField = options.field;
+if (options.master === null) {
+    options.field = "tempid";
+} else {
+    options.tempId = options.master;
+}
+%>
+<script>
+    <%= model %>.triggers.table.before.control("<%= nameclean %>");
+    var keyColumn = eval(`CRUD_<%= model %>`).table.key;
+    <%= model %>.form.registerField("<%= name %>", "<%= toclient %>");
+    <%= model %>.form.schemas.insert["<%= name %>"] = FORM.schemasType.relation;
+    if (MESSAGE.exist('columns.<%= nameclean %>')) {
+        <%= model %>.
+        form.options.<%= name %>.text = MESSAGE.ic('columns.<%= nameclean %>');
+    }
+    <%= model %>.<%= name %> = '<%= model %><%= options.tempId %>';
+    var thisID = eval(`<%= model %>.${keyColumn}`);
+
+</script>
+<div id="<%= model %>_<%= nameclean %>_content" style="height: 500px">
+
+</div>
+<script>
+    $(document).ready(function () {
+        <%= model %>.
+        triggers.table.after.control("<%= nameclean %>");
+        var <%= model %>_<%= nameclean %>Load = (function () {
+
+            var id<%= name %> = '<%= model %><%= options.tempId %>';
+            var field<%= name %> = "<%= options.field %>";
+            if (!DSON.oseaX(thisID) && <%= model %>.
+            form.mode === FORM.modes.edit
+        )
+            {
+                id<%= name %> = thisID;
+                var field<%= name %> = '<%= options.originalField %>';
+            }
+            RELATIONS.anonymous["<%= options.table %>"] =
+                {
+                    readonly: eval(`({${field<%= name %>}:'${id<%= name %>}'})`),
+                    fieldKey: field<%= name %>,
+                    where: [
+                        {
+                            field: field<%= name %>,
+                            value: id<%= name %>
+                        }
+                    ]
+                }
+            if (<%= model %>.
+            form.options.<%= name %>.modal
+        )
+            {
+                <%= model %>.
+                modal.modalView("<%= options.table %>", {
+                    header: {
+                        title: "<%= options.title %>",
+                        icon: "<%= options.icon.class %>"
+                    },
+                    footer: {
+                        cancelButton: true
+                    },
+                    content: {
+                        loadingContentText: MESSAGE.i('actions.Loading')
+                    },
+                });
+            }
+        else
+            {
+                new LOAD().loadContentScope(
+                    "<%= options.table %>",
+                    "<%= model %>_<%= nameclean %>_content",
+                    MESSAGE.i('actions.Loading'),
+                    function () {
+                        MESSAGE.run();
+                        $("#<%= model %>_<%= nameclean %>_content").css('height', 'auto');
+                    }, undefined, undefined,<%= model %>
+                );
+            }
+
+
+        });
+        <%= model %>_<%= nameclean %>Load();
+    });
+</script>
+

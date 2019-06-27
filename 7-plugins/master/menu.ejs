@@ -1,0 +1,109 @@
+<!-- Main sidebar -->
+<div id="dragonmenu" class="sidebar sidebar-main  sidebar-expand-md  bg-<%= COLOR.extra %>-700"
+     ng-show="baseController.isLogged && !baseController.isClient">
+
+    <div class="sidebar-mobile-toggler text-center visible-xs bg-<%= COLOR.extra %>-700">
+        <a class="navbar-brand-mobile bg-<%= COLOR.extra %>-700 sidebar-mobile-main-toggle">
+            <img style="float: left !important;" src="files/configuration/logo/logo.png" alt="">
+            <span class="navbar-brand-text" style="float: left;padding-left: 10px;"> <%= CONFIG.logo %></span>
+        </a>
+    </div>
+
+    <div class="sidebar-content">
+        <!-- Main navigation -->
+        <div class="card card-sidebar-mobile">
+            <div class="category-content no-padding">
+                <style>
+                    .dragon-menu a {
+                        color: <%= CONFIG.ui.theme.text3 %> !important;
+                    }
+                </style>
+
+                <ul id="dragonmenu" class="navigation navigation-main navigation-accordion dragon-menu bg-<%= COLOR.extra %>-700 ">
+                    
+                    <li ng-repeat="(key, menu) in baseController.myMenu() track by key" class="{{menu.class}}">
+                        <a data-modal="{{menu.modal}}" href="{{menu.href}}"
+                           class="bg-extra-700 {{menu.modal?'modalmenu':''}}">
+                            <i class="icon-{{menu.icon}}"></i>
+                            <span>
+                                {{baseController.menuLabel(menu)}}
+                            </span>
+                        </a>
+                        <ul ng-if="menu.menus">
+                            <li ng-repeat="(key, segundo) in menu.menus track by key" class="{{segundo.class}}">
+                                <a data-modal="{{segundo.modal}}" href="{{segundo.href}}"
+                                   class="bg-extra-700 {{segundo.modal?'modalmenu':''}}">
+                                    <i class="icon-{{segundo.icon}}"></i>
+                                    <span>
+                                        {{baseController.menuLabel(segundo)}}
+                                     </span>
+                                </a>
+                                <ul ng-if="segundo.menus">
+                                    <li ng-repeat="(key, tercero) in segundo.menus track by key"
+                                        class="{{tercero.class}}">
+                                        <a data-modal="{{tercero.modal}}" href="{{tercero.href}}"
+                                           class="bg-extra-700 {{tercero.modal?'modalmenu':''}}">
+                                            <i class="icon-{{tercero.icon}}"></i>
+                                            <span>
+                                        {{baseController.menuLabel(tercero)}}
+                                     </span>
+                                        </a>
+                                        <ul ng-if="tercero.menus">
+                                            <li ng-repeat="(key, cuarto) in tercero.menus track by key"
+                                                class="{{cuarto.class}}">
+                                                <a data-modal="{{cuarto.modal}}" href="{{cuarto.href}}"
+                                                   class="bg-extra-700 {{cuarto.modal?'modalmenu':''}}">
+                                                    <i class="icon-{{cuarto.icon}}"></i>
+                                                    <span>
+                                        {{baseController.menuLabel(cuarto)}}
+                                     </span>
+                                                </a>
+                                                <ul ng-if="cuarto.menus">
+                                                    <li ng-repeat="(key, quinto) in cuarto.menus track by key"
+                                                        class="{{quinto.class}}">
+                                                        <a data-modal="{{quinto.modal}}" href="{{quinto.href}}"
+                                                           class="bg-extra-700 {{quinto.modal?'modalmenu':''}}">
+                                                            <i class="icon-{{quinto.icon}}"></i>
+                                                            <span>
+                                        {{baseController.menuLabel(quinto)}}
+                                     </span>
+                                                        </a>
+
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+            </div>
+            <div class="text-muted developerby" dragonlanguage="">
+                © <%= new Date().getFullYear() %>. <a target="_blank" class="text-muted"
+                                                      onclick="MODAL.rawModal(MESSAGE.ic('mono.about'), 'information/about', 'info3', 'modal-full', 'information')"><%= CONFIG.appName %></a>
+                <language>MESSAGE.i('mono.by')</language>
+                <a class="text-muted" href="<%= CONFIG.developerBy.profile %>"
+                   target="_blank"><%= CONFIG.developerBy.name %></a>
+            </div>
+        </div>
+        <!-- /main navigation -->
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(document).on('click', '.dragon-menu a:not(.has-ul)', function () {
+            $("body").removeClass("sidebar-mobile-main");
+        });
+        $(document).on('click', 'body', function (e) {
+            if ($(e.target).prop("tagName") !== "I") {
+                $('.popover').popover('hide');
+            }
+        });
+        MESSAGE.run();
+        MENU.setActive();
+    });
+</script>
+<!-- /main sidebar -->

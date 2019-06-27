@@ -1,0 +1,16 @@
+{
+  "LiteMenu": "Menu Pequeño",
+  "HideMenu": "Esconder menu",
+  "RestoreallConfiguration": "Restaurar todas las configuraciones",
+  "RequestManager": "Peticiones HTTP",
+  "FileManager": "Archivos",
+  "StepManager": "Pasos",
+  "Favorites": "Favoritos",
+  "Logout": "Cerrar Sesión",
+  "AddToFavorite": "Añadir a favoritos",
+  "MessageManager": "Mensajes",
+  "RecordsPerPage": "Registros por pagina",
+  "DonwloadExample": "Descargar ejemplo",
+  "HideColumns": "Ocultar Columna",
+  "ShowColumns": "Mostrar Columna"
+}

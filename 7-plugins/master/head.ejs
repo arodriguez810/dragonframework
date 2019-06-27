@@ -1,0 +1,57 @@
+<head>
+    <% var root = '../../'; %>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title><%= CONFIG.appName %></title>
+
+    <% include css %>
+
+    <% include js %>
+
+    <% include functions %>
+
+    <% include js2 %>
+
+</head>
+<body ng-app="app">
+
+<% include splash %>
+
+<div id="baseController" ng-controller="baseController as baseController" style="display: none">
+    <div id="modalpool">
+
+    </div>
+    <button style="opacity: 0.6" dragonlanguage="" class=" upButtom btn bg-<%= COLOR.primary %>"
+            title="MESSAGE.i('mono.GoToUp')">
+        <i style="font-size: 30px;" class="  icon-arrow-up8"></i></button>
+    <% include navbar %>
+    <!-- Page container -->
+    <div class="page-container">
+        <!-- Page content -->
+        <div class="page-content">
+            <% include menu %>
+            <!-- Main content -->
+            <div class="content-wrapper">
+                <!-- Content area -->
+                <div class="content" id="content" style="overflow: hidden">
+                    <!-- Error title -->
+                    <div class="text-center content-group"
+                         style="background-color: #fff;min-height: 500px;margin-bottom: 0px !important;margin-top: -20px !important;">
+                        <h1 class="error-title dragon-welcome"
+                            style="color: <%= CONFIG.ui.theme.primary %>;text-shadow: 0 1px 0 <%= CONFIG.ui.theme.secundary %>,0 2px 0 <%= CONFIG.ui.theme.secundary %>,0 3px 0 <%= CONFIG.ui.theme.secundary %>,0 4px 0 <%= CONFIG.ui.theme.secundary %>,0 5px 0 #aaa,0 6px 1px rgba(0,0,0,.1),0 0 5px rgba(0,0,0,.1),0 1px 3px rgba(0,0,0,.3),0 3px 5px rgba(0,0,0,.2),0 5px 10px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.2),0 20px 20px rgba(0,0,0,.15);">
+                            <%= CONFIG.appName %>
+                            <script>
+                                if (new SESSION().current()) {
+                                    if (document.location.href.indexOf('#') === -1 && new SESSION().current().homePage) {
+                                        new HTTP().redirecttag(new SESSION().current().homePage.replace('#', ''));
+                                    } else if (document.location.href.indexOf('#') === -1) {
+                                        new HTTP().redirecttag(CONFIG.home.replace('#', ''));
+                                    }
+                                } else {
+                                    new SESSION().ifLogoffRedirec();
+                                }
+                            </script>
+                        </h1>
+                    </div>
+                    <!-- /error title -->
