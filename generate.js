@@ -113,12 +113,12 @@ async function execute() {
             dbfields = await modules.mssql.data(`select COLUMN_NAME \`column\`,DATA_TYPE \`type\` from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='${controllerName}'`, PARAMS, false);
         }
         if (engine === "oracle") {
-            dbtables = await modules.oracle.data(`SELECT TABLE_NAME FROM all_tables where owner='${CONFIG.oracle.user}'`, PARAMS, false);
-            dbfields = await modules.oracle.data(`select COLUMN_NAME column,DATA_TYPE type from all_tab_columns where TABLE_NAME='${controllerName}'`, PARAMS, false);
+            dbtables = await modules.oracle.data(`SELECT TABLE_NAME as "table" FROM all_tables where owner='${CONFIG.oracle.user}'`, PARAMS, false);
+            dbfields = await modules.oracle.data(`select COLUMN_NAME as "column" column,DATA_TYPE as "type" from all_tab_columns where TABLE_NAME='${controllerName}'`, PARAMS, false);
         }
         var dbtablesArray = [];
         dbtables.data.forEach((table) => {
-            dbtablesArray.push(table.table)
+            dbtablesArray.push(table.table.toLowerCase())
         });
         if (dbtablesArray.indexOf(controllerName) === -1) {
             console.log(`Table ${controllerName} not exist`.error);

@@ -86,7 +86,7 @@ FORM = {
     decimal: function (name, model, options) {
         options.isNumber = false;
         options.icon = {class: "calculator2", position: "left"};
-        options.mask = `${"?9".repeat(options.length || 18)}.${"?9".repeat(options.decimal || 2)}`;
+        options.mask = `${"9?".repeat(options.length || 18)}.${"9?".repeat(options.decimal || 2)}`;
         options.restrict = "reject";
         return FORM.template('form/ngmask', {name: name, model: model, opts: options});
     },
