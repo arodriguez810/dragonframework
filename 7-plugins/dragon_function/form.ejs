@@ -1,0 +1,31 @@
+<div>
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <%- FORM.input("name", scope, {maxlength: 50}) %>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 ">
+            <%- FORM.textarea("description", scope, {maxlength: 99999}) %>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <%-
+            FORM.relation("dragon_function_query", scope, {
+                table: "dragon_function_query",
+                field: "dragon_function",
+                master: null,
+                icon: {class: "archive"}
+            })
+            %>
+        </div>
+    </div>
+</div>
+
+<div class="col-sm-12 col-md-12">
+
+</div>
+
+<%- FORM.footer(scope) %>
+

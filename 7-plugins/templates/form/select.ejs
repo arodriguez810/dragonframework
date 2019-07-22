@@ -87,7 +87,10 @@ var toclient = JSON.stringify(options);
 
     <%= model %>.form.registerField("<%= name %>", "<%= toclient %>", "'[NULL]'");
     <%= model %>.form.options.<%= name %>.default = `${MESSAGE.ic('mono.youselect')}`;
-    if (MESSAGE.exist('columns.<%= nameclean %>')) {
+    if (MESSAGE.exist('columns.<%= nameclean %>') && <%= model %>.
+    form.options.<%= name %>.traduce !== false
+    )
+    {
         <%= model %>.
         form.options.<%= name %>.label = MESSAGE.ic('columns.<%= nameclean %>');
         <%= model %>.

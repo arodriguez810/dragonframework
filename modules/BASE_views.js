@@ -1446,5 +1446,64 @@ exports.init = function (params) {
 
         });
     });
+
+    function getAccessToken(params) {
+        let options = {
+            method: 'POST',
+            uri: params.CONFIG.microsoft_cognitiveservices.API,
+            headers: {
+                'Ocp-Apim-Subscription-Key': params.CONFIG.microsoft_cognitiveservices.subscriptionKey
+            }
+        };
+        return params.request_promise(options);
+    }
+
+    function textToSpeech(accessToken, text, params, lan) {
+        // Create the SSML request.
+        let xml_body = params.xmlbuilder.create('speak')
+            .att('version', '1.0').att('xml:lang', 'en-us').ele('voice').att('xml:lang', 'en-us')
+            .att('name', eval(`params.CONFIG.microsoft_cognitiveservices.voices.${lan}`)).txt(text).end();
+        // Short name for 'Microsoft Server Speech Text to Speech Voice (en-US, Guy24KRUS)'
+        // Convert the XML into a string to send in the TTS request.
+        let body = xml_body.toString();
+        let options = {
+            method: 'POST',
+            baseUrl: params.CONFIG.microsoft_cognitiveservices.baseUrl,
+            url: 'cognitiveservices/v1',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken,
+                'cache-control': 'no-cache',
+                'User-Agent': 'YOUR_RESOURCE_NAME',
+                'X-Microsoft-OutputFormat': 'riff-24khz-16bit-mono-pcm',
+                'Content-Type': 'application/ssml+xml'
+            },
+            body: body
+        };
+
+        let request = params.request_promise(options)
+            .on('response', (response) => {
+                if (response.statusCode === 200) {
+                    request.pipe(params.fs.createWriteStream('./preview.wav'));
+                    console.log('Your file is ready');
+                }
+            });
+        return request;
+
+    };
+
+
+    params.app.get("/cognitiveservices/api/", function (req, res) {
+        params.secure.check(req, res).then(async function (token) {
+            if (!token.apptoken) {
+                res.json(token);
+                return;
+            }
+            var accessToken = await getAccessToken(params);
+            await textToSpeech(accessToken, req.query.text, params, req.query.lan);
+            res.json({success: true});
+        }).catch(function () {
+            res.json({success: false});
+        });
+    });
     exports.loadEJSSimple("./" + params.folders.viewsDragon + "/master/error", "error", params);
 };

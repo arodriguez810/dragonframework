@@ -1,0 +1,66 @@
+<style>
+    .CodeMirror {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+    }
+</style>
+<div>
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <%- FORM.input("name", scope, {maxlength: 50}) %>
+        </div>
+        <div class="col-sm-12 col-md-6">
+            <%-
+            FORM.select("sql_engine", scope, {
+                allowview: false,
+                column: "name",
+                table: "sql_engine",
+                text: "item.name",
+                icon: {class: "archive"}
+            })
+            %>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 ">
+            <%- FORM.textarea("description", scope, {maxlength: 200}) %>
+        </div>
+    </div>
+    <div class="row">
+        <div ng-show="query.sql_engine !== '[NULL]'">
+            <div class="col-sm-12 col-md-12 ">
+                <%- FORM.textarea("query", scope, {maxlength: 99999}) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-sm-12 col-md-12">
+
+</div>
+
+<%- FORM.footer(scope) %>
+
+<script>
+    window.editor = CodeMirror.fromTextArea(document.getElementById('query_query'), {
+        mode: 'text/x-sql',
+        indentWithTabs: true,
+        smartIndent: true,
+        matchBrackets: true,
+        extraKeys: {"Ctrl-Space": "autocomplete"},
+        fixedGutter: true,
+        gutter: true,
+        autofocus: true,
+    });
+
+    editor.on("keyup", function(cm, e) {
+        if (e.keyCode !== 8 && e.keyCode !== 13) {
+            editor.execCommand("autocomplete");
+        }
+    });
+    editor.on("blur", function (cm) {
+        query.query = cm.getValue();
+        query.refreshAngular();
+    });
+</script>
+

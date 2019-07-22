@@ -71,8 +71,8 @@ TABLEFORMAT = {
             var result = String.format(
                 MESSAGE.i('table.tableStatus'),
                 $scope.plural,
-                $scope.table.orderby,
-                $scope.table.order,
+                MESSAGE.i('columns.' + $scope.table.orderby),
+                MESSAGE.i('mono.' + $scope.table.order),
                 currentShow,
                 currentShow + ($scope.table.currentCount - 1),
                 $scope.table.totalCount

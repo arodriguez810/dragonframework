@@ -296,6 +296,7 @@ GARBAGECOLECTOR = function (exclude, ignoreChangeMenu) {
                             if(${item}.destroyForm!==false){
                               ${item}.$scope.$destroy();
                               ${item} = null;
+                              RELATIONS.anonymous = [];
                             }
                           }
                         }
@@ -315,6 +316,7 @@ GARBAGECOLECTOR = function (exclude, ignoreChangeMenu) {
                                   ${item}.form = null;
                                   ${item}.open = null;
                                   ${item}.pages = null;
+                                  RELATIONS.anonymous = [];
                               }else{
                                   for(var field of ${item}.form.fileds){
                                      eval('delete ${item}.'+field);
@@ -322,6 +324,7 @@ GARBAGECOLECTOR = function (exclude, ignoreChangeMenu) {
                                   ${item}.form = null;
                                   ${item}.open = null;
                                   ${item}.pages = null;
+                                  RELATIONS.anonymous = [];
                               }
                           }
                         }
