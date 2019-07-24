@@ -375,12 +375,8 @@ RUNTABLE = function (inside) {
     if (eval(`${inside}`).crudConfig !== undefined)
         return;
     TRIGGER.run(eval(`${inside}`));
-    if (eval("typeof CRUD_" + eval(
-        `${inside}`
-    ).modelName) !== "undefined")
-        eval(inside + ".crudConfig = CRUD_" + eval(
-            `${inside}`
-        ).modelName);
+    if (eval("typeof CRUD_" + eval(`${inside}`).modelName) !== "undefined")
+        eval(inside + ".crudConfig = CRUD_" + eval(`${inside}`).modelName);
     else
         eval(`${inside}`).crudConfig = undefined;
     if (eval(`${inside}`).crudConfig)
@@ -408,6 +404,7 @@ RUNTABLE = function (inside) {
             eval(`${inside}`).refresh();
 };
 RUNCONTROLLER = function (conrollerName, inside, $scope, $http, $compile) {
+    inside.LAN = LAN;
     if (inside.events === undefined) {
         TRIGGER.run(inside);
     }
@@ -432,6 +429,7 @@ RUNCONTROLLER = function (conrollerName, inside, $scope, $http, $compile) {
     STORAGE.run(inside);
     MODAL.run(inside, $compile);
     PERMISSIONS.run(inside);
+    TABLEFORMAT.run(inside);
     inside.pages = {};
     inside.refreshAngular = function () {
         if (!inside.$scope.$$phase)

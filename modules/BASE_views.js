@@ -65,7 +65,7 @@ exports.LoadEJS = function (files, params, folder) {
                         }
                     });
 
-                    var currencies = await params.storage.getItem("base_currency") || [];
+                    var currencies = await params.storage.getItem("dragon_currency") || [];
                     var send = {
                         CURRENCIES: currencies,
                         scope: params.modelName,
@@ -166,7 +166,7 @@ exports.LoadEJSDragon = function (files, params, folder) {
                         }
                     });
 
-                    var currencies = await params.storage.getItem("base_currency") || [];
+                    var currencies = await params.storage.getItem("dragon_currency") || [];
                     var send = {
                         CURRENCIES: currencies,
                         scope: params.modelName,
@@ -225,7 +225,6 @@ exports.runServices = function (services, prefix, params) {
             });
         });
     }
-    console.log(services.posts);
     for (var i in services.posts) {
         var func = services.posts[i];
         catalogs.push("post*" + prefix + "." + func.name);
@@ -302,14 +301,14 @@ exports.loadEJSSimple = function (folder, prefix, params) {
         for (var i in files) {
             var file = files[i];
             var viewName = params.S(file).contains("index.ejs") ? "" : "/" + file.replace(".ejs", "");
+            if (viewName.indexOf('.') !== -1)
+                continue;
             params.app.get(params.util.format("/%s%s", prefix, viewName), function (req, res) {
                 params.secure.check(req, res).then(async function (token) {
                     if (!token.apptoken) {
                         res.json(token);
                         return;
                     }
-
-
                     var path = req.originalUrl;
                     var realPath = path.split("?");
                     var viewN = realPath[0].split("/");
@@ -358,7 +357,7 @@ exports.loadEJSSimple = function (folder, prefix, params) {
                         }
                     });
 
-                    var currencies = await params.storage.getItem("base_currency") || [];
+                    var currencies = await params.storage.getItem("dragon_currency") || [];
                     var send = {
                         CURRENCIES: currencies,
                         scope: req.query.scope,
@@ -443,7 +442,7 @@ exports.loadEJSSimple = function (folder, prefix, params) {
                     }
                 });
 
-                var currencies = await params.storage.getItem("base_currency") || [];
+                var currencies = await params.storage.getItem("dragon_currency") || [];
                 var send = {
                     CURRENCIES: currencies,
                     scope: req.query.scope,
@@ -616,7 +615,7 @@ exports.loadEJSSimpleSilents = function (folder, prefix, params) {
                         }
                     });
 
-                    var currencies = await params.storage.getItem("base_currency") || [];
+                    var currencies = await params.storage.getItem("dragon_currency") || [];
                     var send = {
                         CURRENCIES: currencies,
                         scope: req.query.scope,
@@ -700,7 +699,7 @@ exports.loadEJSSimpleSilents = function (folder, prefix, params) {
                     }
                 });
 
-                var currencies = await params.storage.getItem("base_currency") || [];
+                var currencies = await params.storage.getItem("dragon_currency") || [];
                 var send = {
                     CURRENCIES: currencies,
                     scope: req.query.scope,
@@ -873,7 +872,7 @@ exports.loadEJSSimplePOST = function (folder, prefix, params) {
                         }
                     });
 
-                    var currencies = await params.storage.getItem("base_currency") || [];
+                    var currencies = await params.storage.getItem("dragon_currency") || [];
                     var send = {
                         CURRENCIES: currencies,
                         scope: req.query.scope,
@@ -909,6 +908,16 @@ exports.loadEJSSimplePOST = function (folder, prefix, params) {
         }
     });
 };
+removeArray = function (array, ax) {
+    var what, a = arguments, L = a.length, ax;
+    while (L && array.length) {
+        what = a[--L];
+        while ((ax = array.indexOf(what)) !== -1) {
+            array.splice(ax, 1);
+        }
+    }
+    return array;
+};
 exports.init = function (params) {
     var excludes = [
         params.folders.views + "//base",
@@ -917,15 +926,14 @@ exports.init = function (params) {
     var excludesDragon = [
         params.folders.viewsDragon + "//base",
         params.folders.viewsDragon + "//master",
+        "@templates",
         params.folders.viewsDragon + "//templates/charts",
-        // params.folders.viewsDragon + "//templates/docx",
         params.folders.viewsDragon + "//templates/email",
         params.folders.viewsDragon + "//templates/form",
         params.folders.viewsDragon + "//templates/header",
-        // params.folders.viewsDragon + "//templates/pdf",
         params.folders.viewsDragon + "//templates/system",
         params.folders.viewsDragon + "//templates/table",
-        params.folders.viewsDragon + "//aplication"
+        params.folders.viewsDragon + "//application"
     ];
     var models = params.models
         .concat(params.modelsql)
@@ -961,10 +969,18 @@ exports.init = function (params) {
                         filelist,
                         prefix + file + "/"
                     );
+                } else {
+                    //console.log("exclude:" + dir + "/" + file);
                 }
             } else {
             }
         });
+        for (var root in exclude) {
+            if (exclude[root][0] === '@') {
+                var path = exclude[root].replace("@", "");
+                filelist = removeArray(filelist, path);
+            }
+        }
         return filelist;
     };
     var autroute = getFiles(excludesDragon, params.folders.viewsDragon + "/");
@@ -975,7 +991,6 @@ exports.init = function (params) {
             params
         );
     });
-
     autroute = getFiles(excludes, params.folders.views + "/");
     autroute.forEach(element => {
         exports.loadEJSSimple(
@@ -1490,8 +1505,6 @@ exports.init = function (params) {
         return request;
 
     };
-
-
     params.app.get("/cognitiveservices/api/", function (req, res) {
         params.secure.check(req, res).then(async function (token) {
             if (!token.apptoken) {

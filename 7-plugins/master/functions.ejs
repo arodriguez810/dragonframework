@@ -36,8 +36,6 @@ addMenu = function (prefix, array) {
 addMenu([], CONFIG.menus);
 %>
 <script>
-
-
     MENUMODAL = false;
     CHANGINGMENU = true;
     PRUDENTS = {};
@@ -135,7 +133,7 @@ addMenu([], CONFIG.menus);
     LAN.second = value => moment(value || new Date()).format("ss");
     LAN.zeroSecond = value => moment(value || new Date()).format("ss");
 
-
+    EASYINTERVAL = [];
     PLAYERID = null;
 </script>
 <script>
@@ -162,4 +160,9 @@ addMenu([], CONFIG.menus);
         });
 
     }
+</script>
+
+<script>
+    SOCKETS.connect();
+    SOCKETS.run();
 </script>

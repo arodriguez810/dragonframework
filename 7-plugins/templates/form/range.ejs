@@ -23,13 +23,14 @@ var options = {
     maxDate: '',
     from: '',
     to: '',
+    translate: true,
     disabled: false,
     singleDatePicker: false,
     datepicker: true
 };
 
 options = OBJECT.merge(options, opts); var nameclean = name.replace(/\./g, '_');
-options.placeholder = params.capitalize(options.from !== '' ? options.from : name);
+options.placeholder = options.placeholder || params.capitalize(options.from !== '' ? options.from : name);
 options.from = options.from === '' ? nameclean + "_from" : options.from;
 options.to = options.to === '' ? nameclean + "_to" : options.to;
 if (options.timepicker == false) {
@@ -55,7 +56,7 @@ var toclient = JSON.stringify(options);
     <% if(options.singleDatePicker === false){ %>
     <%= model %>.form.registerField("<%= options.to %>", "<%= toclient %>");
     <% } %>
-    if (MESSAGE.exist('columns.<%= nameclean %>')) {
+    if (MESSAGE.exist('columns.<%= nameclean %>') && <%= options.translate %>=== true) {
         <%= model %>.
         form.options.<%= options.from %>.placeholder = MESSAGE.ic('columns.<%= nameclean %>');
     }
