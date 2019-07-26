@@ -68,7 +68,7 @@ var toclient = JSON.stringify(options);
             type="text"
             autocomplete="off"
             ng-model-onblur
-            mask="<%= options.mask %>"
+            <%- options.mask[0] === '`' ? ("mask=\"$eval(" + options.mask + ")\"") : ("mask=\"" + options.mask + "\"") %>
             restrict="<%= options.restrict %>"
             repeat="<%= options.repeat %>"
             clean="<%= options.clean %>"
@@ -76,7 +76,7 @@ var toclient = JSON.stringify(options);
             limit="<%= options.limit %>"
 
             class=" form-control"
-    placeholder="{{::<%= model %>.form.options.<%= name %>.inputPlaceholder}}">
+            placeholder="{{::<%= model %>.form.options.<%= name %>.inputPlaceholder}}">
 
     <div class="form-control-feedback" ng-if="<%= model %>.form.options.<%= name %>.icon.class!=='none'">
         <i class="icon-<%= options.icon.class %> text-secundary">
