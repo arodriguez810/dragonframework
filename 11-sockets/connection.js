@@ -10,4 +10,8 @@ exports.init = function (params) {
             }
         }
     });
+
+    params.sio.on('disconnect', function (socket) {
+
+    });
 };

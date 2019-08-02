@@ -245,10 +245,8 @@ var toclient = JSON.stringify(options);
     function reloadMe<%= model %>_<%= nameclean %>() {
         if (PRUDENTS["<%= options.controller %>"] !== undefined) {
             <% if(options.multiple){ %>
-            if (<%= model %>.<%= nameclean %>===
-            "[NULL]"
-        )
-            <%= model %>.<%= nameclean %> = [];
+            if (<%= model %>.<%= nameclean %>==="[NULL]")
+                <%= model %>.<%= nameclean %> = [];
             <%= model %>.<%= nameclean %>.
             push(PRUDENTS["<%= options.controller %>"].toString());
             delete PRUDENTS["<%= options.controller %>"];
@@ -256,9 +254,8 @@ var toclient = JSON.stringify(options);
             <%= model %>.<%= nameclean %> = PRUDENTS["<%= options.controller %>"].toString();
             delete PRUDENTS["<%= options.controller %>"];
             <% } %>
+            <%= model %>.form.loadDropDown("<%= name %>");
         }
-        <%= model %>.
-        form.loadDropDown("<%= name %>");
     }
 
     $(document).ready(function () {
@@ -304,20 +301,21 @@ var toclient = JSON.stringify(options);
         });
         $('#new<%= model %>_<%= nameclean %>').click(function () {
             CURRENTPRUDENTS = "<%= options.controller %>";
-            <%= model %>.modalAction("<%= options.controller %>", MESSAGE.ic("columns.<%= options.controller %>"), '', 'new', {});
+            <%= model %>.modal.new("<%= options.controller %>");
+
             return false;
         });
         $('#list<%= model %>_<%= nameclean %>').click(function () {
-            <%= model %>.modalAction("<%= options.controller %>", MESSAGE.ic("columns.<%= options.controller %>"), '', 'list', {});
+            <%= model %>.modal.list("<%= options.controller %>");
             return false;
         });
 
         $('#edit<%= model %>_<%= nameclean %>').click(function () {
-            <%= model %>.modalAction("<%= options.controller %>", MESSAGE.ic("columns.<%= options.controller %>"), '', 'edit', <%= model %>.<%= name %>);
+            <%= model %>.modal.edit("<%= options.controller %>", `${<%= model %>.<%= name %>}`);
             return false;
         });
         $('#view<%= model %>_<%= nameclean %>').click(function () {
-            <%= model %>.modalAction("<%= options.controller %>", MESSAGE.ic("columns.<%= options.controller %>"), '', 'view', <%= model %>.form.selected("<%= options.controller %>"));
+            <%= model %>.modal.view("<%= options.controller %>", `${<%= model %>.<%= name %>}`);
             return false;
         });
     });

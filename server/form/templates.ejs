@@ -99,11 +99,8 @@ FORM = {
         return FORM.template('form/ngmask', {name: name, model: model, opts: options});
     },
     decimal: function (name, model, options) {
-        options.isNumber = false;
         options.icon = {class: "calculator2", position: "left"};
-        options.mask = `${"9?".repeat(options.length || 18)}.${"9?".repeat(options.decimal || 2)}`;
-        options.restrict = "reject";
-        return FORM.template('form/ngmask', {name: name, model: model, opts: options});
+        return FORM.template('form/decimal', {name: name, model: model, opts: options});
     },
     hour: function (name, model, options) {
         options.isNumber = false;
@@ -157,10 +154,7 @@ FORM = {
         return FORM.template('form/ngmask', {name: name, model: model, opts: options});
     },
     money: function (name, model, options) {
-        options.isNumber = true;
-        options.icon = {class: "cash3"};
-        options.mask = "99.?9?9";
-        return FORM.template('form/ngmask', {name: name, model: model, opts: options});
+        return FORM.template('form/money', {name: name, model: model, opts: options});
     },
     mask: function (name, model, options) {
         return FORM.template('form/inputmask', {name: name, model: model, opts: options});

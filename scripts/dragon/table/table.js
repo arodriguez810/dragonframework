@@ -58,6 +58,32 @@ TABLE = {
             ${$scope.modelName}.refreshAngular();`);
             resolve(true);
         });
+        $scope.runMagicColumMultiple = (column, table, mykey, key, description) => new Promise(async (resolve, reject) => {
+            key = key || "id";
+            mykey = mykey || "id";
+            description = description || "name";
+            var result = await BASEAPI.listp(table, {});
+            eval(`${column}List = result;`);
+            eval(`${column}List = ${column}List.data;`);
+            eval(`${$scope.modelName}.records.data.forEach(row => {
+                row.${mykey} = row.${mykey} || undefined;
+                var thistype = ${column}List.filter(d => {
+                    if (row.${mykey} !== undefined)
+                        return d.${key}.toString() === row.${mykey}.toString();
+                    return false;
+                });
+                var result = [];
+                console.log("thistype",thistype);
+                if (thistype.length > 0)
+                   thistype.forEach(type => { result.push(type.${description}); });
+                
+                if (thistype.length > 0)
+                    row.${column} = DSON.ULALIA(result);
+                console.log("result",result);
+            });
+            ${$scope.modelName}.refreshAngular();`);
+            resolve(true);
+        });
         $scope.width = function () {
             if (!DSON.oseaX(eval(`CRUD_${$scope.modelName}`).table.width)) {
                 return "";
@@ -279,7 +305,12 @@ TABLE = {
                 dataToList.where = $scope.fixFiltersApply();
                 $scope.filtersApply(dataToList);
                 if (RELATIONS.anonymous[$scope.modelName] !== undefined) {
-                    dataToList.where = RELATIONS.anonymous[$scope.modelName].where;
+                    if (Array.isArray(dataToList.where)) {
+                        RELATIONS.anonymous[$scope.modelName].where.forEach(d => {
+                            dataToList.where.push(d);
+                        });
+                    } else
+                        dataToList.where = RELATIONS.anonymous[$scope.modelName].where;
                 }
                 if (!DSON.oseaX(ARRAY.last(MODAL.historyObject))) {
                     if (!DSON.oseaX(ARRAY.last(MODAL.historyObject).viewData)) {
@@ -312,7 +343,12 @@ TABLE = {
                 dataToList.where = $scope.fixFiltersApply();
                 $scope.filtersApply(dataToList);
                 if (RELATIONS.anonymous[$scope.modelName] !== undefined) {
-                    dataToList.where = RELATIONS.anonymous[$scope.modelName].where;
+                    if (Array.isArray(dataToList.where)) {
+                        RELATIONS.anonymous[$scope.modelName].where.forEach(d => {
+                            dataToList.where.push(d);
+                        });
+                    } else
+                        dataToList.where = RELATIONS.anonymous[$scope.modelName].where;
                 }
                 if (!DSON.oseaX(ARRAY.last(MODAL.historyObject))) {
                     if (!DSON.oseaX(ARRAY.last(MODAL.historyObject).viewData)) {

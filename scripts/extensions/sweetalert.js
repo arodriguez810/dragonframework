@@ -123,6 +123,14 @@ NOTIFY = {
             buttons: buttons
         });
     },
+    confirm: function (text, success, cancel, opt) {
+        opt = opt || {};
+        NOTIFY.custom({
+            text: text,
+            type: opt.type,
+            type: opt.type,
+        })
+    },
     success: function (text, position) {
         NOTIFY.base('success', text, position);
     },
