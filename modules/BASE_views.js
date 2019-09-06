@@ -130,7 +130,7 @@ exports.LoadEJS = function (files, params, folder) {
 
                     res.render("../" + (folder || params.folders.views) + "/" + realPath, {
                         DATA: (req || {query: {}}).query,
-                        scope: modelName[0],
+                        scope: req.query.scope,
                         params: params
                     });
                 }).catch(function () {
@@ -174,7 +174,7 @@ exports.LoadEJSDragon = function (files, params, folder) {
 
                     res.render("../" + (folder || params.folders.viewsDragon) + "/" + realPath, {
                         DATA: (req || {query: {}}).query,
-                        scope: modelName[0],
+                        scope: req.query.scope,
                         params: params
                     });
                 }).catch(function () {
@@ -308,7 +308,7 @@ exports.loadEJSSimple = function (folder, prefix, params) {
                         {
                             DATA: (req || {query: {}}).query,
                             params: params,
-                            scope: modelName[0]
+                            scope: req.query.scope
                         });
                 }).catch(function () {
 
@@ -464,7 +464,7 @@ exports.loadEJSSimpleSilents = function (folder, prefix, params) {
                     res.render("../" + params.folders.silents + "/" + viewfinal, {
                         DATA: (req || {query: {}}).query,
                         params: params,
-                        scope: modelName[0]
+                        scope: req.query.scope
                     });
                 }).catch(function () {
 
@@ -617,7 +617,7 @@ exports.loadEJSSimplePOST = function (folder, prefix, params) {
                     res.render("." + folder + "/" + viewfinal, {
                         DATA: req.body,
                         params: params,
-                        scope: modelName[0]
+                        scope: req.query.scope
                     });
                 }).catch(function () {
 
@@ -637,7 +637,7 @@ exports.init = function (params) {
         params.folders.viewsDragon + "//master",
         "@templates",
         params.folders.viewsDragon + "//templates/charts",
-        params.folders.viewsDragon + "//templates/email",
+        // params.folders.viewsDragon + "//templates/email",
         params.folders.viewsDragon + "//templates/form",
         params.folders.viewsDragon + "//templates/header",
         params.folders.viewsDragon + "//templates/system",
@@ -1027,7 +1027,8 @@ exports.init = function (params) {
                 return;
             }
             var fs = params.fs || require("fs");
-            var file = __dirname + '/../' + params.folders.config + '/' + 'z_saved.json';
+            var configFolder = params.CONFIG.mode === "developer" ? params.folders.config : `${params.folders.eviroments}/${params.CONFIG.mode}`;
+            var file = __dirname + '/../' + configFolder + '/' + 'z_saved.json';
             req.body.json = params.S(req.body.json).replaceAll("&#39;", "'").s;
             req.body.json = params.S(req.body.json).replaceAll("&#34;", "\"").s;
             req.body.json = params.S(req.body.json).replaceAll("&lt;", "<").s;
@@ -1049,7 +1050,9 @@ exports.init = function (params) {
                 return;
             }
             var fs = params.fs || require("fs");
-            var file = __dirname + '/../' + params.folders.config + '/' + 'z_saved.json';
+
+            var configFolder = params.CONFIG.mode === "developer" ? params.folders.config : `${params.folders.eviroments}/${params.CONFIG.mode}`;
+            var file = __dirname + '/../' + configFolder + '/' + 'z_saved.json';
 
             req.body.json = params.S(req.body.json).replaceAll("&#39;", "'").s;
             req.body.json = params.S(req.body.json).replaceAll("&#34;", "\"").s;

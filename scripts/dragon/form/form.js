@@ -115,8 +115,6 @@ FORM = {
             if ($scope.form !== null) {
                 var nameclean = name.replace(/\./g, '_');
                 $scope.form.fileds.push(name);
-
-
                 var references = name.split('.');
                 if ($scope.form === undefined) {
                     $scope.form = {};
@@ -307,7 +305,7 @@ FORM = {
 
                 var crud = eval(`CRUD_${$scope.modelName}`);
                 if (crud.table.dragrow !== false) {
-                    var last = await BASEAPI.firstp($scope.tableOrView, {
+                    var last = await DRAGONAPI.firstp($scope.tableOrView, {
                         order: 'desc',
                         orderby: crud.table.dragrow,
                         where: $scope.fixFilters,
@@ -318,7 +316,7 @@ FORM = {
                         $scope.form.inserting[crud.table.dragrow] = (parseInt(last[crud.table.dragrow]) + 1).toString();
                 }
 
-                BASEAPI.insertID($scope.tableOrMethod, $scope.form.inserting, $scope.form.fieldExGET, $scope.form.valueExGET, async function (result) {
+                DRAGONAPI.insertID($scope.tableOrMethod, $scope.form.inserting, $scope.form.fieldExGET, $scope.form.valueExGET, async function (result) {
                     if (result.data.error === false) {
 
                         SWEETALERT.loading({message: MESSAGE.i('mono.saving')});
@@ -338,9 +336,19 @@ FORM = {
                             multipleRelations: $scope.form.multipleRelations,
                             relations: $scope.form.relations,
                         });
+                        if (DRAGON.features.user_interactive)
+                            SOCKETS.tunel({
+                                channel: "interactive",
+                                data: {
+                                    user: new SESSION().current(),
+                                    action: SOCKETS.actions.refreshtable,
+                                    scope: $scope.modelName
+                                }
+                            });
 
                         var firstColumn = eval(`CRUD_${$scope.modelName}`).table.key || "id";
                         var DRAGONID = eval(`savedRow.${firstColumn}`);
+
                         if (!DSON.oseaX(CURRENTPRUDENTS)) {
                             PRUDENTS[CURRENTPRUDENTS] = DRAGONID;
                             CURRENTPRUDENTS = "";
@@ -365,7 +373,7 @@ FORM = {
                                     for (var file of $scope.form.uploading)
                                         file.to = file.to.replace('$id', DRAGONID);
 
-                                    BASEAPI.ajax.post(new HTTP().path(["files", "api", "move"]), {moves: $scope.form.uploading}, function (data) {
+                                    DRAGONAPI.ajax.post(new HTTP().path(["files", "api", "move"]), {moves: $scope.form.uploading}, function (data) {
                                         $scope.pages.form.subRequestComplete(close);
                                         $scope.filesToMove = [];
                                     });
@@ -380,7 +388,7 @@ FORM = {
                                                 eval(`frel.${i} = vi`);
                                             }
                                         }
-                                        BASEAPI.insert(relation.config.toTable, relation.data, function (data) {
+                                        DRAGONAPI.insert(relation.config.toTable, relation.data, function (data) {
                                             $scope.pages.form.subRequestComplete(close);
                                         });
                                     }
@@ -403,7 +411,7 @@ FORM = {
                                             eval(`dataToUpdate.${i} = vi`);
                                         }
                                         dataToUpdate.where = dataToWhere;
-                                        BASEAPI.updateall(relation.config.toTable, dataToUpdate, function (udata) {
+                                        DRAGONAPI.updateall(relation.config.toTable, dataToUpdate, function (udata) {
                                             $scope.pages.form.subRequestComplete(close);
                                         });
                                     }
@@ -439,7 +447,7 @@ FORM = {
                 }) === false)
                     return;
 
-                BASEAPI.updateall($scope.tableOrMethod, dataToUpdate, async function (result) {
+                DRAGONAPI.updateall($scope.tableOrMethod, dataToUpdate, async function (result) {
                     if (result.data.error === false) {
                         if ($scope.form !== null) {
                             $scope.form.after.update({
@@ -455,10 +463,23 @@ FORM = {
                                 multipleRelations: $scope.form.multipleRelations,
                                 relations: $scope.form.relations,
                             });
+
+
                         }
                         SWEETALERT.loading({message: MESSAGE.i('mono.saving')});
                         var firstColumn = eval(`CRUD_${$scope.modelName}`).table.key || "id";
                         var DRAGONID = eval(`$scope.${firstColumn}`);
+
+                        if (DRAGON.features.user_interactive)
+                            SOCKETS.tunel({
+                                channel: "interactive",
+                                data: {
+                                    user: new SESSION().current(),
+                                    action: SOCKETS.actions.editrecord,
+                                    scope: $scope.modelName,
+                                    record: DRAGONID
+                                }
+                            });
 
                         if ($scope.form !== null)
                             $scope.form.mode = FORM.modes.edit;
@@ -484,7 +505,7 @@ FORM = {
                                                 eval(`frel.${i} = vi`);
                                             }
                                         }
-                                        for (var i in  relation.config.fieldsUpdate) {
+                                        for (var i in relation.config.fieldsUpdate) {
                                             var vi = relation.config.fieldsUpdate[i].replace('$id', DRAGONID);
                                             eval(`relation.config.fieldsUpdate.${i} = vi`);
                                         }
@@ -492,8 +513,8 @@ FORM = {
                                         whereDelete.push(relation.config.fieldsUpdate)
 
 
-                                        var ddata = await BASEAPI.deleteallp(relation.config.toTable, whereDelete);
-                                        await BASEAPI.insertp(relation.config.toTable, relation.data);
+                                        var ddata = await DRAGONAPI.deleteallp(relation.config.toTable, whereDelete);
+                                        await DRAGONAPI.insertp(relation.config.toTable, relation.data);
                                         $scope.pages.form.subRequestComplete(close);
 
                                     }
@@ -551,8 +572,7 @@ FORM = {
                                     eval(`$scope.form.inserting.${field} = $scope.form.lastPrepare.${field};`);
                             }
                         }
-                    }
-                    else {
+                    } else {
                         var typeField = eval(`$scope.form.schemas.insert.${field}`);
                         switch (typeField) {
                             case FORM.schemasType.upload: {
@@ -713,15 +733,14 @@ FORM = {
                         if (exist.length) {
                             if (eval(`$scope.${options.parent.model}_object !==null`))
                                 exist[0].value = eval(`$scope.${options.parent.model}_object.${options.parent.sufield}`);
-                        }
-                        else {
+                        } else {
                             toquery.where.push({
                                 field: options.parent.myfield || options.parent.model,
                                 value: eval(`$scope.${options.parent.model}_object.${options.parent.sufield}`)
                             });
                         }
                     }
-                    BASEAPI.list(options.table, toquery,
+                    DRAGONAPI.list(options.table, toquery,
                         function (info) {
                             if (!DSON.oseaX(options.groupby)) {
                                 var newData = {};
@@ -772,7 +791,7 @@ FORM = {
                                             field: options.get.fieldTo,
                                             value: eval(`$scope.${options.get.fieldFrom}`)
                                         });
-                                        BASEAPI.list(options.get.table, {
+                                        DRAGONAPI.list(options.get.table, {
                                             limit: 99999,
                                             page: 1,
                                             orderby: options.get.fieldTo,
@@ -870,15 +889,14 @@ FORM = {
                             if (exist.length) {
                                 if (eval(`$scope.${options.parent.model}_object !==null`))
                                     exist[0].value = eval(`$scope.${options.parent.model}_object.${options.parent.sufield}`);
-                            }
-                            else {
+                            } else {
                                 toquery.where.push({
                                     field: options.parent.myfield || options.parent.model,
                                     value: eval(`$scope.${options.parent.model}_object.${options.parent.sufield}`)
                                 });
                             }
                         }
-                        BASEAPI.list(options.table, toquery,
+                        DRAGONAPI.list(options.table, toquery,
                             function (info) {
                                 if (!DSON.oseaX(options.groupby)) {
                                     var newData = {};
@@ -930,7 +948,7 @@ FORM = {
                                                 field: options.get.fieldTo,
                                                 value: eval(`$scope.${options.get.fieldFrom}`)
                                             });
-                                            BASEAPI.list(options.get.table, {
+                                            DRAGONAPI.list(options.get.table, {
                                                 limit: 99999,
                                                 page: 1,
                                                 orderby: options.get.fieldTo,
@@ -1043,7 +1061,7 @@ FORM = {
             if ($scope.form !== null) {
                 var animation = new ANIMATION();
                 animation.loading(`#input${name}`, "", `#icon${name}`, '30');
-                BASEAPI.list(options.table, options.query,
+                DRAGONAPI.list(options.table, options.query,
                     function (info) {
                         if (!DSON.oseaX(options.groupby)) {
                             var newData = {};
@@ -1090,7 +1108,9 @@ FORM = {
                 }
             }
         };
+        $scope.form.preUpdate = null;
         $scope.openForm = async function (mode) {
+
 
             if (await $scope.triggers.table.before.open() === false)
                 return;
@@ -1158,7 +1178,7 @@ FORM = {
                             if ($scope.refresh !== undefined) {
                                 if (close === false) {
                                     $scope.refresh();
-                                    $scope.modal.new(mylink.table);
+                                    $scope.modal.new($scope.tableOrView);
                                 }
                                 $scope.refresh();
                             }
@@ -1195,7 +1215,7 @@ FORM = {
                                             MODAL.close($scope);
                                             if (close === false) {
                                                 $scope.refresh();
-                                                $scope.modal.new(mylink.table);
+                                                $scope.modal.new($scope.tableOrView);
                                                 return;
                                             }
                                         }
@@ -1224,7 +1244,7 @@ FORM = {
                                             MODAL.close($scope);
                                             if (close === false) {
                                                 $scope.refresh();
-                                                $scope.modal.new(mylink.table);
+                                                $scope.modal.new($scope.tableOrView);
                                                 return;
                                             }
                                         }
@@ -1238,7 +1258,7 @@ FORM = {
                                         MODAL.close($scope);
                                         if (close === false) {
                                             $scope.refresh();
-                                            $scope.modal.new(mylink.table);
+                                            $scope.modal.new($scope.tableOrView);
                                             return;
                                         }
                                     }
@@ -1251,7 +1271,7 @@ FORM = {
                                 MODAL.close($scope);
                                 if (close === false) {
                                     $scope.refresh();
-                                    $scope.modal.new(mylink.table);
+                                    $scope.modal.new($scope.tableOrView);
                                     return;
                                 }
                             }
@@ -1302,7 +1322,7 @@ FORM = {
                         event: {
                             show: {
                                 begin: function (datam) {
-                                    for (const func of  $scope.form.beginFunctions) {
+                                    for (const func of $scope.form.beginFunctions) {
                                         eval(func);
                                     }
                                 },
@@ -1321,15 +1341,16 @@ FORM = {
                             },
                             hide: {
                                 begin: async function (datam) {
-                                    for (var field of $scope.form.fileds) {
-                                        eval(`
+                                    if (MODAL.history[MODAL.history.length - 1] === "#modal" + MODAL.current().id)
+                                        for (var field of $scope.form.fileds) {
+                                            eval(`
                                         if(${$scope.modelName}.$scope.$$watchers)
                                         ${$scope.modelName}.$scope.$$watchers.filter((d, inx) => {
                                             if (d.exp === \`${$scope.modelName}.\${field}\`) {
                                                 delete ${$scope.modelName}.$scope.$$watchers[inx];
                                             }
                                         });`);
-                                    }
+                                        }
                                     if (await $scope.triggers.table.before.close() === false)
                                         return;
                                     if (MODAL.history.length === 0) {
@@ -1373,9 +1394,9 @@ FORM = {
                     $scope.form.fileds.push(i);
                 }
 
-                if (baseController.viewData)
-                    if (baseController.viewData.readonly) {
-                        $scope.form.readonly = DSON.merge(baseController.viewData.readonly, $scope.form.readonly, true);
+                if (DRAGON.viewData)
+                    if (DRAGON.viewData.readonly) {
+                        $scope.form.readonly = DSON.merge(DRAGON.viewData.readonly, $scope.form.readonly, true);
                         for (var i in $scope.form.readonly) {
                             eval(`$scope.${i} = $scope.form.readonly.${i};`);
                             $scope.form.fileds.push(i);
@@ -1399,7 +1420,7 @@ FORM = {
                 if (data !== null) {
                     $scope.open.query = data;
                     $scope.open.query.orderby = data.where[0].field;
-                    BASEAPI.first($scope.tableOrMethod, $scope.open.query, function (data) {
+                    DRAGONAPI.first($scope.tableOrMethod, $scope.open.query, function (data) {
                         for (var i in data) {
 
                             var item = eval(` \`${eval(`data.${i}`)}\``);

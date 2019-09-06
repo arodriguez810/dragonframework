@@ -43,9 +43,28 @@ HTTP = function () {
         return formurl.concat(pathsarray).join("/");
     };
     this.redirect = function (path) {
+        var url = new HTTP().path(path.split('/'));
+        console.log(url);
+        var $menu = $(`.modalmenu[href='${path}']`);
+        if ($menu.length > 0) {
+            var modal = $menu.data('modal');
+            if (modal) {
+                $menu.trigger("click");
+                return;
+            }
+        }
         document.location.href = new HTTP().path(path.split('/'));
     };
     this.redirecttag = function (path) {
+        var url = new HTTP().tagpath(path.split('/'));
+        var $menu = $(`.modalmenu[href='#${path}']`);
+        if ($menu.length > 0) {
+            var modal = $menu.data('modal');
+            if (modal) {
+                $menu.trigger("click");
+                return;
+            }
+        }
         document.location.href = new HTTP().tagpath(path.split('/'));
     };
     this.evaluateTokenHTML = function (data) {
@@ -88,10 +107,10 @@ HTTP = function () {
             }
         }
         STORAGE.add('warningRequests', WARNINGREQUESTS);
-        baseController.WARNINGREQUESTS = WARNINGREQUESTS;
+        DRAGON.WARNINGREQUESTS = WARNINGREQUESTS;
     };
     this.openManager = function () {
-        baseController.viewData = {
+        DRAGON.viewData = {
             staticdata: WARNINGREQUESTS
         };
         var modal = {
@@ -106,7 +125,7 @@ HTTP = function () {
                 loadingContentText: MESSAGE.i('actions.Loading')
             },
         };
-        baseController.currentModel.modal.modalView("../templates/components/requestManager", modal);
+        DRAGON.modal.modalView("../templates/components/requestManager", modal);
     };
     this.resetManager = function () {
         if (WARNINGREQUESTS.length)
@@ -116,7 +135,7 @@ HTTP = function () {
                 confirm: function () {
                     STORAGE.delete('warningRequests');
                     WARNINGREQUESTS = [];
-                    MODAL.close(baseController.currentModel);
+                    MODAL.closeAll();
                 }
             });
         else
@@ -134,7 +153,6 @@ $(document).ready(function () {
         if (paths.length > 0) {
             $("body").removeClass("sidebar-mobile-main");
             var controller = paths[0];
-            MENUMODAL = true;
             MODAL.rawModal(title, link, icon.replace('icon-', ''), width, controller);
         }
         return false;
@@ -145,10 +163,10 @@ $(document).ready(function () {
         FIXELEMENT.elements = [];
         if (!DSON.oseaX(outanimation)) {
             new ANIMATION().playPure($('#content'), outanimation, function () {
-                ANGULARJS.get('baseController').base();
+                ANGULARJS.get('DRAGON').base();
             });
         } else {
-            ANGULARJS.get('baseController').base();
+            ANGULARJS.get('DRAGON').base();
         }
 
     });

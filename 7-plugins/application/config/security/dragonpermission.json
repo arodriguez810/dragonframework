@@ -1,0 +1,150 @@
+{
+  "permissions": {
+    "entities": [
+      "users"
+    ],
+    "terms": [
+      {
+        "name": "dragon_group",
+        "relation": "user_dragon_group"
+      }
+    ],
+    "types": {
+      "full": {
+        "menu": true,
+        "add": true,
+        "edit": true,
+        "view": true,
+        "remove": true,
+        "filter": true,
+        "import": false,
+        "copy": true,
+        "export": {
+          "Clipboard": true,
+          "PDF": true,
+          "CSV": true,
+          "XLS": true,
+          "DOC": true
+        },
+        "file": {
+          "download": true,
+          "remove": true,
+          "upload": true
+        },
+        "actions": true
+      },
+      "permission": {
+        "menu": true,
+        "permission": true,
+        "add": true,
+        "edit": true,
+        "view": true,
+        "remove": true,
+        "filter": true,
+        "import": false,
+        "copy": true,
+        "export": {
+          "Clipboard": true,
+          "PDF": true,
+          "CSV": true,
+          "XLS": true,
+          "DOC": true
+        },
+        "file": {
+          "download": true,
+          "remove": true,
+          "upload": true
+        },
+        "actions": true
+      },
+      "permissionnomenu": {
+        "permission": true,
+        "add": true,
+        "edit": true,
+        "view": true,
+        "remove": true,
+        "filter": true,
+        "import": false,
+        "copy": true,
+        "export": {
+          "Clipboard": true,
+          "PDF": true,
+          "CSV": true,
+          "XLS": true,
+          "DOC": true
+        },
+        "file": {
+          "download": true,
+          "remove": true,
+          "upload": true
+        },
+        "actions": true
+      },
+      "nomenu": {
+        "add": true,
+        "edit": true,
+        "view": true,
+        "remove": true,
+        "filter": true,
+        "import": false,
+        "copy": true,
+        "export": {
+          "Clipboard": true,
+          "PDF": true,
+          "CSV": true,
+          "XLS": true,
+          "DOC": true
+        },
+        "file": {
+          "download": true,
+          "remove": true,
+          "upload": true
+        },
+        "actions": true
+      },
+      "report": {
+        "menu": true,
+        "view": true,
+        "filter": true,
+        "export": {
+          "Clipboard": true,
+          "PDF": true,
+          "CSV": true,
+          "XLS": true,
+          "DOC": true
+        },
+        "file": {
+          "download": true,
+          "remove": true,
+          "upload": true
+        },
+        "actions": true
+      },
+      "empty": {
+        "export": {
+        },
+        "file": {
+          "download": true,
+          "remove": true,
+          "upload": true
+        }
+      },
+      "emptymenu": {
+        "menu": true,
+        "export": {
+        },
+        "file": {
+          "download": true,
+          "remove": true,
+          "upload": true
+        }
+      }
+    },
+    "list": {
+      "dragon_group": {
+        "type": "full",
+        "allow": {}
+      }
+    }
+  }
+}

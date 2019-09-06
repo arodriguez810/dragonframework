@@ -17,7 +17,9 @@ app.controller("<%= scope %>", function ($scope, $http, $compile) {
         }
     };
     // <%= scope %>.triggers.table.after.load = function (records) {
-    //     //<%= scope %>.runMagicColum('@thistable', '@thisfield','@relationtable','@relationfield');
+    //     //<%= scope %>.runMagicOneToOne('@column');
+    //     //<%= scope %>.runMagicOneToMany('@column', '@tablerelation', '@fieldrelation');
+    //     //<%= scope %>.runMagicManyToMany('@thistable', '@tabledescription', '@idfromManyToManyTable');
     //     //console.log(`<%= scope %>.triggers.table.after.load <%= scope %>`);
     // };
     // <%= scope %>.triggers.table.before.load = () => new Promise((resolve, reject) => {

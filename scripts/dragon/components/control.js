@@ -3,17 +3,17 @@ CONTROL = {
     run: function ($scope, $compile) {
         $scope.control = {};
         $scope.control.dropdown = [];
-        $scope.control.draw = (content, url, name, opts, append, cols) => new Promise((resolve, reject) => {
-            if (!CONTROL.cache[url]) {
+        $scope.control.draw = (content, url, name, opts, append, cols, label, cache) => new Promise((resolve, reject) => {
+            if (!CONTROL.cache[url] || cache === false) {
                 new LOAD().templatePost(`dragoncontrol/${url}`, {
                     name: "DRAGONNAME",
                     model: "DRAGONMODEL",
-                    opts: "DRAGONOPTION"
+                    opts: JSON.stringify(opts)
                 }, function (control) {
                     if (control !== false) {
                         CONTROL.cache[url] = control;
                         var controlReal = control.replaceAll("DRAGONNAME", name);
-                        controlReal = controlReal.replaceAll("Dragonname", name);
+                        controlReal = controlReal.replaceAll("Dragonname", label || name);
                         controlReal = controlReal.replaceAll("DRAGONMODEL", $scope.modelName);
                         controlReal = controlReal.replaceAll("DRAGONOPTION", JSON.stringify(opts));
                         if (cols)
@@ -30,10 +30,8 @@ CONTROL = {
                 });
             } else {
                 var controlReal = CONTROL.cache[url].replaceAll("DRAGONNAME", name);
-                controlReal = controlReal.replaceAll("Dragonname", name);
+                controlReal = controlReal.replaceAll("Dragonname", label || name);
                 controlReal = controlReal.replaceAll("DRAGONMODEL", $scope.modelName);
-                console.log(opts);
-                console.log(JSON.stringify(opts));
                 controlReal = controlReal.replaceAll("DRAGONOPTION", JSON.stringify(opts));
                 if (cols)
                     controlReal = `<div class="col-sm-${cols} col-md-${cols}">` + controlReal + `</div>`;
@@ -48,8 +46,8 @@ CONTROL = {
         });
         for (var i of CONTROLS) {
             var nameData = i.replace(".ejs", "");
-            eval(`$scope.control.${nameData} = (content, name, opts,append,cols) => new Promise(async (resolve, reject) => {
-                await $scope.control.draw(content, "${nameData}", name, opts,append,cols);
+            eval(`$scope.control.${nameData} = (content, name, opts,append,cols,label,cache) => new Promise(async (resolve, reject) => {
+                await $scope.control.draw(content, "${nameData}", name, opts,append,cols,label,cache);
                 resolve(true);
             })`);
         }

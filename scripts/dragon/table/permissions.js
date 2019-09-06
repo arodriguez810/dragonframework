@@ -100,14 +100,14 @@ PERMISSIONS = {
         };
         $scope.savePermission = function () {
             SWEETALERT.loading({message: MESSAGE.ic('mono.saving')});
-            BASEAPI.deleteall('permission', {
+            DRAGONAPI.deleteall('permission', {
                 "where": [
                     {
                         "value": `${$scope.idPermission}`
                     }
                 ]
             }, function (deleted) {
-                BASEAPI.insert('permission', {
+                DRAGONAPI.insert('permission', {
                     "insertData": {
                         "id": `${$scope.idPermission}`,
                         "object": JSON.stringify($scope.permissions)
@@ -118,6 +118,13 @@ PERMISSIONS = {
                 });
             });
         };
+    },
+    allow: function (controller, permission) {
+        if (eval(`PERMISSIONS.mypermission`))
+            if (eval(`PERMISSIONS.mypermission.${controller}`))
+                if (eval(`PERMISSIONS.mypermission.${controller}.allow`))
+                    return eval(`PERMISSIONS.mypermission.${controller}.allow.${permission}`);
+        return true;
     },
     format: function () {
         for (var i in CONFIG.permissions.list) {

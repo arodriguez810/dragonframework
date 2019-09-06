@@ -1,0 +1,232 @@
+{
+  "storageEntities": {
+    "dragon_group": {
+      "key": "id",
+      "type": "one",
+      "base": true,
+      "fields": [
+        "name",
+        "description",
+        "isAdmin",
+        "homePage",
+        "created",
+        "updated",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "user_dragon_group": {
+      "key": "id",
+      "type": "one",
+      "fields": [
+        "user",
+        "group",
+        "created",
+        "updated",
+        "tempid",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "permission": {
+      "type": "deep"
+    },
+    "dragon_configuration": {
+      "type": "deep"
+    },
+    "dragon_menu": {
+      "type": "deep"
+    },
+    "dragon_information": {
+      "type": "deep"
+    },
+    "dragon_language": {
+      "type": "deep"
+    },
+    "dragon_notifications": {
+      "key": "id",
+      "type": "one",
+      "fields": [
+        "subject",
+        "showSegments",
+        "advance",
+        "schedule",
+        "count",
+        "interval",
+        "until",
+        "notificationID",
+        "sendAfter",
+        "headings",
+        "url",
+        "content",
+        "created",
+        "updated",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "dragon_segment": {
+      "key": "id",
+      "type": "one",
+      "base": true,
+      "fields": [
+        "name",
+        "description",
+        "created",
+        "updated",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "dragon_interval": {
+      "key": "id",
+      "type": "one",
+      "base": true,
+      "fields": [
+        "name",
+        "description",
+        "code",
+        "created",
+        "updated",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "dragon_notifications_segment": {
+      "key": "id",
+      "type": "one",
+      "fields": [
+        "notifications",
+        "segment",
+        "created",
+        "updated",
+        "tempid",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "user_dragon_notifications": {
+      "key": "id",
+      "type": "one",
+      "fields": [
+        "user",
+        "notifications",
+        "created",
+        "updated",
+        "tempid",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "dragon_customfield": {
+      "key": "id",
+      "type": "one",
+      "open": true,
+      "fields": [
+        "name",
+        "description",
+        "variable",
+        "length",
+        "elements",
+        "multiple",
+        "mask",
+        "parent",
+        "type",
+        "isDecimal",
+        "positions",
+        "fileCount",
+        "multiplefile",
+        "documentType",
+        "created",
+        "updated",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "dragon_fieldtype": {
+      "key": "id",
+      "type": "one",
+      "base": true,
+      "fields": [
+        "name",
+        "key",
+        "description",
+        "created",
+        "updated",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "dragon_mime": {
+      "key": "id",
+      "type": "one",
+      "base": true,
+      "fields": [
+        "name",
+        "key",
+        "description",
+        "created",
+        "updated",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "dragon_currency": {
+      "key": "id",
+      "type": "one",
+      "base": true,
+      "fields": [
+        "name",
+        "description",
+        "symbol",
+        "decimal",
+        "separator",
+        "precision",
+        "created",
+        "updated",
+        "user_created",
+        "user_updated"
+      ]
+    },
+    "dragon_query": {
+      "key": "id",
+      "type": "one",
+      "fields": [
+        "name",
+        "query",
+        "function",
+        "num",
+        "tempid"
+      ]
+    },
+    "dragon_function": {
+      "key": "id",
+      "type": "one",
+      "fields": [
+        "name",
+        "description",
+        "parameters"
+      ]
+    },
+    "dragon_task": {
+      "key": "id",
+      "type": "one",
+      "fields": [
+        "id",
+        "name",
+        "description",
+        "script",
+        "second",
+        "minute",
+        "hour",
+        "day",
+        "month",
+        "year",
+        "dayOfWeek",
+        "start",
+        "end",
+        "enabled"
+      ]
+    }
+  }
+}

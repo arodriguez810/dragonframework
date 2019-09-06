@@ -15,6 +15,6 @@ NOTIFICATION = {
                 sameController: 'dragon_configuration'
             },
         };
-        baseController.currentModel.modal.modalView("templates/components/notifications", modal);
+        DRAGON.modal.modalView("templates/components/notifications", modal);
     }
 };

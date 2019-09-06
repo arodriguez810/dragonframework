@@ -3,16 +3,15 @@ if (DATA.name !== undefined) {
     var name, model, opts, modelfolder;
     name = DATA.name;
     model = DATA.model;
-    opts = DATA.opts;
+    if (DATA.opts !== "")
+        opts = eval("(" + DATA.opts + ")");
     modelfolder = DATA.opts.modelfolder;
 
 }
 var name = name || "";
-
-console.log(modelfolder+":mandado es");
+modelfolder = "";
 if (!modelfolder) {
     modelfolder = model;
-    console.log(modelfolder+":este es");
 }
 
 var options = {
@@ -39,7 +38,8 @@ var options = {
     posttype: "file",
     download: true,
     remove: true,
-    upload: true
+    upload: true,
+    alone: false
 };
 options = OBJECT.merge(options, opts); var nameclean = name.replace(/\./g, '_');
 options.color = options.type === "form" ? "{{" + model + ".validation.stateDefault()}}" : options.icon.color;
@@ -127,7 +127,7 @@ var toclient = JSON.stringify(options);
             var toClean = eval(`"<%= modelfolder %>/${save}/${id}"`);
             var to = `${FOLDERS.files}/${toClean}`;
 
-            await BASEAPI.ajax.postp(new HTTP().path(["files", "api", "move"]), {moves: [{from: from, to: to}]});
+            await DRAGONAPI.ajax.postp(new HTTP().path(["files", "api", "move"]), {moves: [{from: from, to: to}]});
         }
         resolve(true);
     });
@@ -173,17 +173,17 @@ var toclient = JSON.stringify(options);
         ;
         <% } %>
         if (amLoad<%= name %> || direct === true) {
-            BASEAPI.ajax.get(new HTTP().path(["files", "api"]), {folder: <%= model %>.form.options.<%= name %>.folder
-        },
+            DRAGONAPI.ajax.get(new HTTP().path(["files", "api"]), {
+                    folder: <%= model %>.form.options.<%= name %>.folder
+                },
 
-            function (data) {
-                <%= model %>.
-                <%= name %>_DragonCountFile = data.data.files.length;
-                <%= model %>.
-                $scope.$digest();
-            }
-
-        )
+                function (data) {
+                    <%= model %>.
+                    <%= name %>_DragonCountFile = data.data.files.length;
+                    <%= model %>.
+                    $scope.$digest();
+                }
+            )
             ;
             amLoad<%= name %> = false;
         }
@@ -194,8 +194,10 @@ var toclient = JSON.stringify(options);
         form.options.<%= name %>.file === ''
     )
         {
-            <%= model %>.
-            form.options.<%= name %>.folder = `<%= modelfolder %>/<%= name %>/${thisID}`;
+            if( <%= model %>.form.options.<%= name %>.alone === true)
+            <%= model %>.form.options.<%= name %>.folder = `<%= options.folder %>`;
+            else
+            <%= model %>.form.options.<%= name %>.folder = `<%= modelfolder %>/<%= name %>/${thisID}`;
         }
         ShowCount<%= name %>(true);
     }
@@ -213,29 +215,19 @@ var toclient = JSON.stringify(options);
             amLoad<%= name %> = true;
             var root = <%= model %>.
             form.options.<%= name %>.folder;
-            baseController.viewData = {
+            DRAGON.viewData = {
                 root: root,
                 file:<%= model %>.form.options.<%= name %>.file,
-                scope
-        : <%= model %>,
-            maxsize: <%= model %>.
-            form.options.<%= name %>.maxsize_mb,
-                maxsize
-        : <%= model %>.
-            form.options.<%= name %>.maxsize_mb,
-                maxfiles
-        : <%= model %>.
-            form.options.<%= name %>.maxfiles,
-                acceptedFiles
-        : <%= model %>.
-            form.options.<%= name %>.acceptedFiles,
-                columns
-        : <%= model %>.
-            form.options.<%= name %>.columns
-        }
-            ;
+                scope: <%= model %>,
+                nameclean: "<%= model %>_<%= nameclean %>",
+                maxsize: <%= model %>.form.options.<%= name %>.maxsize_mb,
+                maxfiles: <%= model %>.form.options.<%= name %>.maxfiles,
+                acceptedFiles: <%= model %>.form.options.<%= name %>.acceptedFiles,
+                columns: <%= model %>.form.options.<%= name %>.columns
+            };
+
             var modal = {
-                    width: <%= model %>.form.options.<%= name %>.width,
+                width: <%= model %>.form.options.<%= name %>.width,
                 header: {
                     title: <%= model %>.form.options.<%= name %>.title,
                     icon: <%= model %>.form.options.<%= name %>.icon.class
@@ -246,10 +238,11 @@ var toclient = JSON.stringify(options);
                 content: {
                     loadingContentText: MESSAGE.i('actions.Loading')
                 },
-                };
+            };
             <%= model %>.
             modal.modalView("../templates/components/gallery", modal);
         });
     });
+    <%= model %>.refreshAngular();
 </script>
 

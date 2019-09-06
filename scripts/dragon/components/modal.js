@@ -3,8 +3,8 @@ MODAL = {
     history: [],
     viewData: [],
     rawModal: function (title, link, icon, width, controller) {
-        MENUMODAL = true;
-        baseController.currentModel.modal.modalView(link, {
+        //MENUMODAL = true;
+        DRAGON.modal.modalView(link, {
             width: width || ENUM.modal.width.full,
             header: {
                 title: title || '',
@@ -20,10 +20,10 @@ MODAL = {
             event: {
                 hide: {
                     begin: function (data) {
-
+                        //MENUMODAL = true;
                     },
                     end: function (data) {
-                        console.log(controller);
+                        //MENUMODAL = true;
                     }
                 }
             }
@@ -42,17 +42,19 @@ MODAL = {
             $(item).remove();
         }
         MODAL.history = [];
-        if (typeof  baseController !== "undefined")
-            baseController.viewData = undefined;
+        if (typeof DRAGON !== "undefined")
+            DRAGON.viewData = undefined;
         if (MODAL.historyObject.length < 1) {
             if (MENUMODAL) {
-                ANGULARJS.get('baseController').base();
+                ANGULARJS.get('DRAGON').base();
                 MENUMODAL = false;
             }
             UNIQUEFIELD = null;
         }
     },
     close: function ($scope, callback) {
+        if ($scope === undefined)
+            $scope = DRAGON.currentModel;
         var last = ARRAY.last(MODAL.history);
         STEP.register({
             scope: $scope ? $scope.modelName : '',
@@ -67,7 +69,7 @@ MODAL = {
             $scope.colertor();
             UNIQUEFIELD = null;
             if (MENUMODAL) {
-                ANGULARJS.get('baseController').base();
+                ANGULARJS.get('DRAGON').base();
                 MENUMODAL = false;
             }
         }
@@ -80,15 +82,14 @@ MODAL = {
                 if (typeof callback === "function")
                     callback();
             } else {
-                baseController.viewData = ARRAY.last(MODAL.historyObject).viewData;
+                DRAGON.viewData = ARRAY.last(MODAL.historyObject).viewData;
                 $(last).modal("show");
             }
         } else {
-            baseController.viewData = undefined;
+            DRAGON.viewData = undefined;
         }
         if (typeof callback === "function")
             callback();
-
     },
     run: function ($scope) {
         $scope.modal = {};
@@ -124,7 +125,7 @@ MODAL = {
             });
         };
         $scope.modal.view = async function (controller, id) {
-            var item = await BASEAPI.firstp(controller, $scope.info.whereKey(id, controller));
+            var item = await DRAGONAPI.firstp(controller, $scope.info.whereKey(id, controller));
             DRAGONID = item;
             var html =
                 `
@@ -243,8 +244,7 @@ MODAL = {
                         function (success) {
                             MESSAGE.run();
                         }, undefined, undefined, $scope);
-                }
-                else {
+                } else {
 
                     new LOAD().loadContentClean(
                         data.content.data.replaceAll("->", ""),
@@ -273,7 +273,7 @@ MODAL = {
                 if (typeof data.event.show.end === "function")
                     data.event.show.end($scope);
             });
-            data.viewData = baseController.viewData;
+            data.viewData = DRAGON.viewData;
             MODAL.historyObject.push(data);
             return data.id;
         };
@@ -287,8 +287,7 @@ MODAL = {
                         function (success) {
                             MESSAGE.run();
                         }, undefined, undefined, $scope);
-                }
-                else {
+                } else {
 
                     new LOAD().loadContentClean(
                         data.content.data.replaceAll("->", ""),
@@ -310,7 +309,7 @@ MODAL = {
                 $(last).modal("hide");
             }
             var data = ARRAY.last(MODAL.historyObject);
-            baseController.viewData = data.viewData;
+            DRAGON.viewData = data.viewData;
             $("#modal" + id).modal("show");
             var indexb = 0;
             for (var i in data.footer.buttons) {
@@ -340,7 +339,7 @@ MODAL = {
             //     $(last).modal("hide");
             // }
             // var data = ARRAY.last(MODAL.historyObject);
-            // baseController.viewData = data.viewData;
+            // DRAGON.viewData = data.viewData;
             // $("#modal" + id).modal("show");
             // var indexb = 0;
             // for (var i in data.footer.buttons) {
@@ -389,15 +388,15 @@ MODAL = {
                     if (typeof callback === "function")
                         callback();
                 } else {
-                    baseController.viewData = ARRAY.last(MODAL.historyObject).viewData;
+                    DRAGON.viewData = ARRAY.last(MODAL.historyObject).viewData;
                     $(last).modal("show");
                 }
             } else {
-                baseController.viewData = undefined;
+                DRAGON.viewData = undefined;
             }
             if (MODAL.historyObject.length < 1) {
                 if (MENUMODAL) {
-                    ANGULARJS.get('baseController').base();
+                    ANGULARJS.get('DRAGON').base();
                     MENUMODAL = false;
                 }
                 UNIQUEFIELD = null;
@@ -416,10 +415,10 @@ MODAL = {
             }
             MODAL.history = [];
 
-            baseController.viewData = undefined;
+            DRAGON.viewData = undefined;
             if (MODAL.historyObject.length < 1) {
                 if (MENUMODAL) {
-                    ANGULARJS.get('baseController').base();
+                    ANGULARJS.get('DRAGON').base();
                     MENUMODAL = false;
                 }
                 UNIQUEFIELD = null;
@@ -579,7 +578,7 @@ MODAL = {
             maper.pixel(map, content);
         };
         $scope.modal.jsonDetail = function (method, paramenters, crud, modaloptions) {
-            BASEAPI.ajax.post(method, paramenters, function (data) {
+            DRAGONAPI.ajax.post(method, paramenters, function (data) {
                 $scope.currentDetail = {
                     from: $scope.modelName,
                     to: method,

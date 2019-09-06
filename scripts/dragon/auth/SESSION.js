@@ -1,6 +1,7 @@
 SESSION = function () {
     this.myprofile = function () {
-        baseController.currentModel.modal.edit(this.current().path ? this.current().path() : CONFIG.users.path,this.current().getID());
+        //MENUMODAL = true;
+        DRAGON.modal.edit(this.current().path ? this.current().path() : CONFIG.users.path, this.current().getID());
     };
     this.current = function () {
         var obj = STORAGE.get("APPSESSION");
@@ -11,6 +12,37 @@ SESSION = function () {
             }
         }
         return obj;
+    };
+    this.prepare = (user) => new Promise(async (resolve, reject) => {
+        var User = new SESSION().runFunction(user);
+        if (User) {
+            User.image = await new SESSION().getProfileImage(User.getID());
+            if (User.image) {
+                if (User.image.length > 0)
+                    User.image = User.image[0].url;
+            }
+            resolve(User);
+        }
+        resolve(undefined);
+    });
+    this.update = function (obj) {
+        var session = STORAGE.get("APPSESSION");
+        if (session) {
+            for (var i in obj)
+                session[i] = obj[i];
+            STORAGE.add("APPSESSION", session);
+        }
+        return session;
+    };
+    this.profileImage = async function () {
+        if (this.isLogged())
+            return await FILE.serverp(`${this.current().path ? this.current().path() : CONFIG.users.path}/profileimage/${this.current().getID()}`, "assets/images/placeholder.jpg", "no");
+        return null;
+    };
+    this.getProfileImage = async function (id) {
+        if (this.isLogged())
+            return await FILE.serverp(`${this.current().path ? this.current().path() : CONFIG.users.path}/profileimage/${id}`, "assets/images/placeholder.jpg", "no");
+        return null;
     };
     this.runFunction = function (obj) {
         if (!DSON.oseaX(obj)) {
@@ -23,6 +55,8 @@ SESSION = function () {
     };
     this.register = function (data) {
         STORAGE.add("APPSESSION", data);
+        if (CONFIG.features.user_interactive)
+            SOCKETS.tunel({channel: "login", data: data});
     };
     this.isLogged = function () {
         return !DSON.oseaX(STORAGE.get("APPSESSION"));
@@ -51,6 +85,8 @@ SESSION = function () {
         SWEETALERT.confirm({
             message: MESSAGE.i('alerts.AYSCloseSession'),
             confirm: function () {
+                if (CONFIG.features.user_interactive)
+                    SOCKETS.tunel({channel: "logoff", data: new SESSION().current()});
                 new SESSION().destroy();
                 location.reload();
             }

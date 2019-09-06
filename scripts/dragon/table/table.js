@@ -32,7 +32,7 @@ TABLE = {
                         var first = currents[i];
                         var dataTOUpdate = {where: [{value: first.id}]};
                         dataTOUpdate[$scope.dragrow] = ordered[i];
-                        await BASEAPI.updateallp($scope.tableOrMethod, dataTOUpdate);
+                        await DRAGONAPI.updateallp($scope.tableOrMethod, dataTOUpdate);
                     }
                     $scope.refresh();
                 }, 500);
@@ -41,7 +41,7 @@ TABLE = {
         $scope.runMagicColum = (column, table, key, description) => new Promise(async (resolve, reject) => {
             key = key || "id";
             description = description || "name";
-            var result = await BASEAPI.listp(table, {});
+            var result = await DRAGONAPI.listp(table, {});
             eval(`${column}List = result;`);
             eval(`${column}List = ${column}List.data;`);
 
@@ -58,11 +58,14 @@ TABLE = {
             ${$scope.modelName}.refreshAngular();`);
             resolve(true);
         });
-        $scope.runMagicColumMultiple = (column, table, mykey, key, description) => new Promise(async (resolve, reject) => {
-            key = key || "id";
+        $scope.runMagicOneToOne = (column, table, key, description) => new Promise(async (resolve, reject) => {
+            table = table || column;
+            return $scope.runMagicColum(column, table, key, description);
+        });
+        $scope.runMagicOneToMany = (column, table, key, description, mykey) => new Promise(async (resolve, reject) => {
             mykey = mykey || "id";
             description = description || "name";
-            var result = await BASEAPI.listp(table, {});
+            var result = await DRAGONAPI.listp(table, {});
             eval(`${column}List = result;`);
             eval(`${column}List = ${column}List.data;`);
             eval(`${$scope.modelName}.records.data.forEach(row => {
@@ -72,23 +75,64 @@ TABLE = {
                         return d.${key}.toString() === row.${mykey}.toString();
                     return false;
                 });
-                var result = [];
-                console.log("thistype",thistype);
+                var resultB = [];
                 if (thistype.length > 0)
-                   thistype.forEach(type => { result.push(type.${description}); });
+                   thistype.forEach(type => { resultB.push(type.${description}); });
                 
                 if (thistype.length > 0)
-                    row.${column} = DSON.ULALIA(result);
-                console.log("result",result);
+                    row.${column} = DSON.ULALIA(resultB);
             });
             ${$scope.modelName}.refreshAngular();`);
             resolve(true);
         });
+        $scope.runMagicManyToMany = (column, tablaDesc, idMAM, mykey, showColumn, tableMAM, idADY, idDesc) => new Promise(async (resolve, reject) => {
+            mykey = mykey || "id";
+            idADY = idADY || tablaDesc;
+            idDesc = idDesc || "id";
+            showColumn = showColumn || "name";
+            tableMAM = tableMAM || `${$scope.modelName}_${tablaDesc}`;
+            eval(`var ${column}allids = [];`);
+            eval(`${$scope.modelName}.records.data.forEach(row => {
+                if(row.${mykey})
+                ${column}allids.push(row.${mykey});
+            });`);
+            var result = await DRAGONAPI.listp(tableMAM, {where: [{field: idMAM, value: eval(`${column}allids `)}]});
+            eval(`var ${column}allids = [];`);
+            eval(`result.data.forEach(row => {
+                if(row.${idADY})
+                ${column}allids.push(row.${idADY});
+            });`);
+            var descriptions = await DRAGONAPI.listp(tablaDesc, {
+                where: [{
+                    field: idDesc,
+                    value: eval(`${column}allids `)
+                }]
+            });
+
+
+            eval(`${$scope.modelName}.records.data.forEach(row => {
+                row.${mykey} = row.${mykey} || undefined;
+                var mylist = [];
+                result.data.forEach(d => {
+                    if (row.${mykey} !== undefined)
+                        if(d.${idMAM}.toString() === row.${mykey}.toString())
+                            mylist.push(d.${idADY}.toString()); 
+                });
+                var mydescs = [];
+                descriptions.data.forEach(d => {
+                    if(mylist.indexOf( d.${idDesc}.toString())!==-1)
+                        mydescs.push(d.${showColumn}.toString());
+                });
+                row.${column} = DSON.ULALIA(mydescs);
+            });
+            ${$scope.modelName}.refreshAngular();`);
+            resolve(true);
+        });
+
         $scope.width = function () {
             if (!DSON.oseaX(eval(`CRUD_${$scope.modelName}`).table.width)) {
                 return "";
-            }
-            else
+            } else
                 for (const key in $scope.columns()) {
                     var index = 1;
                     var column = {};
@@ -149,7 +193,8 @@ TABLE = {
         };
         $scope.showallColumn = function () {
             for (const key in eval(`CRUD_${$scope.modelName}`).table.columns) {
-                eval(`CRUD_${$scope.modelName}`).table.columns[key].visible = true;
+                if (!eval(`CRUD_${$scope.modelName}`).table.columns[key].dead)
+                    eval(`CRUD_${$scope.modelName}`).table.columns[key].visible = true;
             }
             STORAGE.add($scope.modelName + "." + 'hideColumns', []);
             $scope.width();
@@ -328,18 +373,23 @@ TABLE = {
                     dataToList.params = $scope.tableParams;
 
                 $scope.refreshAngular();
-                BASEAPI.list(
+                DRAGONAPI.list(
                     $scope.tableOrView,
                     dataToList,
                     function (data) {
-                        $scope.afterData(data);
-                        $scope.table.loaded = true;
-                        $scope.refreshAngular();
-                        DRAG.run($scope);
+                        if ($scope.table.currentPage > 1) {
+                            if (data.data.length === 0) {
+                                $scope.firstPage();
+                            }
+                        } else {
+                            $scope.afterData(data);
+                            $scope.table.loaded = true;
+                            $scope.refreshAngular();
+                            DRAG.run($scope);
+                        }
                     }
                 );
-            }
-            else {
+            } else {
                 dataToList.where = $scope.fixFiltersApply();
                 $scope.filtersApply(dataToList);
                 if (RELATIONS.anonymous[$scope.modelName] !== undefined) {
@@ -365,13 +415,20 @@ TABLE = {
                 if ($scope.tableParams)
                     dataToList.params = $scope.tableParams;
 
-                BASEAPI.list(
+                DRAGONAPI.list(
                     $scope.tableOrView,
                     dataToList,
                     function (data) {
-                        $scope.afterData(data);
-                        $scope.refreshAngular();
-                        DRAG.run($scope);
+
+                        if ($scope.table.currentPage > 1) {
+                            if (data.data.length === 0) {
+                                $scope.firstPage();
+                            }
+                        } else {
+                            $scope.afterData(data);
+                            $scope.refreshAngular();
+                            DRAG.run($scope);
+                        }
                     }
                 );
             }
