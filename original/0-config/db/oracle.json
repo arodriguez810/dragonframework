@@ -1,0 +1,8 @@
+{
+  "oracleactive": false,
+  "oracle": {
+    "user": "ADMIN",
+    "password": "Inoesan01",
+    "connectString": "PXZ"
+  }
+}
